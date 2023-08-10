@@ -1,0 +1,103 @@
+@import url(https://fonts.googleapis.com/css?family=Noto+Sans+Vithkuqi:regular,500,600,700);
+:root{
+    --h : 92vh
+}
+*{
+    font-family: 'Noto Sans Vithkuqi';
+}
+.btn {
+
+    background: #8A33FD;
+    border-radius: 5px;
+    border: 0px;
+    outline: none;
+    padding: 7px 20px;
+    font-family: 'Noto Sans Vithkuqi';
+    font-style: normal;
+    font-weight: 500;
+
+    color: #FFFFFF;
+    cursor: pointer;
+
+}
+a{
+    text-decoration: none;
+}
+.auth{
+    display: flex;
+}
+.auth-left-sign {
+    height: calc(var(--h));
+    width: 45vw;
+    background-image: url('../assets/sign.png')  ;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.auth-left-login {
+    height: calc(var(--h));
+    width: 45vw;
+    background-image: url('../assets/log.svg')  ;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.auth-right{
+    margin: auto;
+    
+}
+.auth-right form{
+    display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-family: 'Noto Sans Vithkuqi';
+}
+
+.auth-right form input{
+    border: 1px solid #3C4242;
+    border-radius: 5px;
+    font-family: 'Noto Sans Vithkuqi';
+    outline: none;
+    width: 400px;
+    height: 40px;
+    padding: 0px 7px;
+}
+
+.home-container{
+    box-sizing: border-box;
+    padding: 10px 25px;
+    text-align: center;
+}
+
+.product-left-img img{
+    width: 450px;
+}
+
+.product-rating{
+    display: flex;
+    gap : 15px;
+    margin-bottom: 30px;
+    margin-top: -20px;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th{
+    text-align: left;
+    background-color: #3C4242;
+    color: #FFFFFF;
+}
+td,th{
+    height : 30px;
+    padding : 15px 40px;
+    border-bottom: 1px solid #ddd;
+}
+td{
+    padding: 35px 40px;
+}
+tr:hover {
+    background-color: #F6F6F6;
+}
+
+.profile-left{
+    width: 300px;
+}
