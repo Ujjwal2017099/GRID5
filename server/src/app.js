@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const mongoose = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = 8000;
@@ -12,6 +11,8 @@ const Cart = require('./models/cart')
 const Products = require('./models/products')
 const Category = require('./models/category')
 const Rating = require('./models/rating')
+const Temporary = require('./models/temporary')
+const puppeteer = require("puppeteer")
 
 
 const corsOptions = {
@@ -48,6 +49,7 @@ async function GetCart(req,res,next) {
         for(let i=0;i<user[0].Cart.length;i++){
             const cart = await Cart.find({ _id: user[0].Cart[i] });
             const obj = {
+                CartId : cart[0]._id,
                 ProductId : cart[0].ProductId,
                 Quantity : cart[0].Quantity,
                 Date : cart[0].Date
@@ -63,6 +65,23 @@ async function GetCart(req,res,next) {
         
     } catch (error) {
         return res.sendStatus(501);
+    }
+}
+
+async function GetProducts(req,res,next) {
+    try {
+        const x = req.body.Orders;
+        const response = [];
+        for(let i=0;i<x.length;i++){
+            const y = await Orders.find({_id:x[i]});
+            response.push(y[0]);
+        }
+        if(response.length === x.length){
+            res.Data = response
+            next();
+        }
+    } catch (error) {
+        return res.status(501).send(error.message);
     }
 }
 
@@ -105,19 +124,39 @@ app.post("/signup", async (req, res) => {
 
 app.get("/search" , async (req,res)=>{
     try {
-        // AddJeans();
-        Remove();
-        res.sendStatus(201);
+        await Temporary.deleteMany({});
+        res.sendStatus(200);
     } catch (error) {
         
     }
 })
 
 app.get("/similar_product" , async (req,res)=>{
+    try {
+        const x = await Products.find({ Category: "64ddfc3ab0ef9123521f8190" });
+        const y = await Category.find({ _id: "64ddfc3ab0ef9123521f8190" });
+        for(let i=0;i<x.length;i++){
+            y[0].Products.push(x[i]._id);
+            console.log(i);
+        }
+        await y[0].save();
+        res.sendStatus(200);
 
+    } catch (error) {
+        res.send(error.message);
+    }
 })
-app.use(VerifyToken);
-app.use(GetCart);
+
+app.get("/product_details" , async (req,res)=>{
+    try {
+        const details = await Products.find({_id:req.query.prd_id});
+        
+    } catch (error) {
+        
+    }
+})
+// app.use(VerifyToken);
+// app.use(GetCart);
 
 app.post("/new_order", VerifyToken, async (req, res) => {
     try {
@@ -128,14 +167,14 @@ app.post("/new_order", VerifyToken, async (req, res) => {
         cart.forEach(async(e) => {
             const newOrder = new Orders({
                 UserId: res.userId,
-                ProductId: e.product,
-                Quantity: e.quantity,
+                ProductId: e.ProductId,
+                Quantity: e.Quantity,
             });
             user[0].Orders.push(newOrder._id);
             await newOrder.save();
         });
 
-        await Cart.deleteMany(cart);
+        await Cart.deleteMany({ UserId: user[0]._id });
         // await Orders.save();
         user[0].Cart=[];
         await user[0].save();
@@ -150,16 +189,14 @@ app.post("/add_to_cart" , VerifyToken , async (req,res)=>{
     try {
         const user = await User.find({_id:res.userId});
         // console.log(user[0]._id);
-        req.body.products.forEach(async (e)=>{
             const newCart = new Cart({
                 UserId: res.userId,
-                ProductId: e.product,
-                Quantity: e.quantity,
-            });
+                ProductId: req.body.product,
+                Quantity: req.body.quantity,
+            })
             user[0].Cart.push(newCart._id);
             await newCart.save();
-            
-        })
+           
         await user[0].save();
 
         return res.sendStatus(201);
@@ -185,11 +222,28 @@ app.get("/profile", VerifyToken, async (req, res) => {
     }
 });
 
-app.get("/orders",VerifyToken, async (req, res) => {
+app.post("/orders",VerifyToken,GetProducts, async (req, res) => {
     try {
+        const x = res.Data;
+        const response = [];
+        for(let i=0;i<x.length;i++){
+            const y = await Products.find({_id:x[i].ProductId});
+            const r = {
+                OrderId : x[i]._id,
+                Date : x[i].Date,
+                Quantity : x[i].Quantity,
+                Total : y[0].Price*x[i].Quantity,
+                Image : y[0].Image
+            }
+            response.push(r);
+        }
 
+        if(response.length === x.length){
+            return res.status(200).send(response);
+        }
     } catch (error) {
-
+        // console.log(error.message);
+        return res.status(501).send(error.message);
     }
 });
 
@@ -216,6 +270,46 @@ app.get("/cart",VerifyToken , GetCart , async(req,res)=>{
     }
 })
 
+app.post('/search_history' , VerifyToken , async(req,res)=>{
+    try {
+        const _id = res.userId;
+        const x = await User.find({_id})
+        x[0].Search.push(req.query.search);
+        await x[0].save();
+        res.sendStatus(201);
+    } catch (error) {
+        res.status(401).send(error.message);
+    }
+})
+
+app.post("/change_quantity",VerifyToken , async (req,res)=>{
+    try {
+        const cart = await Cart.find({ _id: req.body.cartId}); 
+        if(cart[0].Quantity + req.body.change === 0){
+            const user = await User.find({_id : res.userId})
+            await Cart.deleteOne({_id:req.body.cartId});
+            const arr = [];
+            user[0].Cart.forEach((e)=>{
+                if(e!==req.body.cartId){
+                    arr.push(e);
+                }
+            })
+            user[0].Cart = arr;
+            await user[0].save();
+        }else{
+            cart[0].Quantity += req.body.change;
+            await cart[0].save()
+        }
+
+        res.sendStatus(201);
+    } catch (error) {
+        res.status(501).send(error.message);
+    }
+});
+
+app.get('/test' , async(req,res)=>{
+    
+})
 
 app.listen(PORT, () => {
     console.log("server started");

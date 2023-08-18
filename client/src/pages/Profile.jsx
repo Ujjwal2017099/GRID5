@@ -1,12 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import greater from '../assets/greater-than.svg'
 import ProfiLeft from '../components/ProfileLeft'
 import MyOrders from '../components/MyOrders'
 import Footer from '../components/Footer'
+import { useNavigate } from 'react-router-dom'
+import {URL} from '../URL'
+import axios from 'axios'
 
 const Profile = () => {
+    const token = JSON.parse(localStorage.getItem('id'));
     const [toogle,setToogle] = useState(0);
+    const navigate = useNavigate();
     const main = {
         padding : '10px 50px 0px 50px'
     }
@@ -18,6 +23,33 @@ const Profile = () => {
         justifyContent : 'space-between',
         width : '900px'
     }
+    const [name,setName] = useState();
+    const [email,setEmail] = useState();
+    const [phone,setPhone] = useState();
+    const [orders,setOrders] = useState();
+
+    useEffect(()=>{
+        if (token && token.length) {
+            const url = `${URL}/profile?token=${token}`
+            const options = {
+                method : "GET",
+                url,
+                headers : {'content-type' : "application/json"}
+            }
+            axios(options)
+            .then((res)=>{
+                console.log(res.data);
+                setName(res.data.Name)
+                setEmail(res.data.Email);
+                setPhone(res.data.Mobile);
+                setOrders(res.data.Orders);
+            }).catch((err)=>{
+                console.log(err.message);
+            })
+        }else{
+            navigate('/auth/login')
+        }
+    },[token])
   return (
       <>
           <Navbar />
@@ -37,24 +69,20 @@ const Profile = () => {
                             <ul className='vertical-list'>
                                 <li style={itemStyle}>
                                     <p style={{fontWeight : '600',color : '#807D7E'}}>Your Name</p>
-                                    <p style={{fontWeight : '600',fontSize:'15px'}}>Your Name</p>
+                                    <p style={{fontWeight : '600',fontSize:'15px'}}>{name}</p>
                                 </li>
                                 <li style={itemStyle}>
                                     <p style={{fontWeight : '600',color : '#807D7E'}}>Email Address</p>
-                                    <p style={{fontWeight : '600',fontSize:'15px'}}>YourName@gmail.com</p>
+                                    <p style={{fontWeight : '600',fontSize:'15px'}}>{email}</p>
                                 </li>
                                 <li style={itemStyle}>
                                     <p style={{fontWeight : '600',color : '#807D7E'}}>Phone Number</p>
-                                    <p style={{fontWeight : '600',fontSize:'15px'}}>7895890978</p>
-                                </li>
-                                <li style={itemStyle}>
-                                    <p style={{fontWeight : '600',color : '#807D7E'}}>Delivery Address</p>
-                                    <p style={{fontWeight : '600',fontSize:'15px'}}>1/4 Pragatinagar Flats, opp. jain derasar , near Jain derasar, Vijaynagar road</p>
+                                    <p style={{fontWeight : '600',fontSize:'15px'}}>{phone}</p>
                                 </li>
                             </ul>
                         </div>
                     </div> : 
-                    <MyOrders/>
+                    <MyOrders list={orders}/>
                 }
             </div>
           </div>

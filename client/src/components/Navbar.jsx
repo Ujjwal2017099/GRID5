@@ -6,6 +6,8 @@ import profile from '../assets/profile.png'
 import cart from '../assets/cart.png'
 import wishlist from '../assets/wishlist.png'
 import { Link, useNavigate } from 'react-router-dom'
+import { URL } from '../URL'
+import axios from 'axios'
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -17,9 +19,24 @@ const Navbar = () => {
     ]
     const [search , setSearch] = useState('');
     const [active,setActive] = useState(false);
-
+    const token = JSON.parse(localStorage.getItem('id'));
     useEffect(()=>{
         if(active){
+            if(token && token.length){
+                const url = `${URL}/search_history?token=${token}`;
+                const options = {
+                    url,
+                    method : "POST",
+                    headers : {'content-type' : 'application/json'}
+                }
+
+                axios(options)
+                .then((res)=>{
+                    console.log(res.data);
+                }).catch((err)=>{
+                    console.log(err);
+                })
+            }
             navigate(`/${search}`);
         }
     },[active])

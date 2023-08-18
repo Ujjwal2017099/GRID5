@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
     },
     Category: {
         type: String,
-        default: "64ddfc3ab0ef9123521f8190",
+        required : true
     },
     Brand: {
         type: String,
@@ -33,6 +33,9 @@ const productSchema = new mongoose.Schema({
     ProductsViewed: {
         type: [],
     },
+    ItemID : {
+        type : String
+    }
 });
 
 const Products = new mongoose.model("Product", productSchema);

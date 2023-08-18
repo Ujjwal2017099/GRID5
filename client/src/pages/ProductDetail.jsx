@@ -10,8 +10,13 @@ import greaterThan from '../assets/greater-than.svg'
 import tick from '../assets/tick.svg'
 import Products from '../components/Products'
 import Footer from '../components/Footer'
+import { useNavigate } from 'react-router-dom'
+import { URL } from '../URL'
+import axios from 'axios'
 
 const ProductDetail = () => {
+  const token = JSON.parse(localStorage.getItem('id'))
+  const navigate = useNavigate();
     const [product, setProduct] = useState({
         Name: "Raven Hoodie With Black colored Design",
         Description:
@@ -43,6 +48,25 @@ const ProductDetail = () => {
     const main = {
         padding : '0px 75px'
     }
+    const addToCart = ()=>{
+      if(token && token.length){
+        const url = `${URL}/add_to_cart?token=${token}`;
+        const options = {
+          method : "POST",
+          url,
+          headers : {'content-type':'application/json'}
+        }
+        axios(options)
+        .then((res)=>{
+          
+        }).catch((err)=>{
+          console.log(err);
+        })
+      }else{
+        alert('Login First');
+        navigate('/auth/login');
+      }
+    }
   return (
     <>
       <div style={main}>
@@ -59,7 +83,7 @@ const ProductDetail = () => {
                       <p>{product.Rating}</p>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:'20px'}}>
-                    <button className='btn' style={{display:'flex',alignItems:'center',gap:'8px'}}> <img src={cart} alt="" /> Add to Cart</button>
+                    <button onClick={addToCart} className='btn' style={{display:'flex',alignItems:'center',gap:'8px'}}> <img src={cart} alt="" /> Add to Cart</button>
                     <button className='btn2' style={{display:'flex',alignItems:'center',gap:'8px'}}> Price</button>
                   </div>
                   <hr style={{margin : '25px 0px'}} />
