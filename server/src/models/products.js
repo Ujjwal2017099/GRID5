@@ -31,12 +31,15 @@ const productSchema = new mongoose.Schema({
         default: 0,
     },
     ProductsViewed: {
-        type: [],
+        type: Number,
+        default: 0,
     },
     ItemID : {
         type : String
     }
 });
+
+productSchema.index({Name : 'text',Description:'text',Category:'text'})
 
 const Products = new mongoose.model("Product", productSchema);
 

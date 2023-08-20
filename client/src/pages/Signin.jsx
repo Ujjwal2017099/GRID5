@@ -26,7 +26,7 @@ const Signin = () => {
         axios(options)
         .then((res)=>{
             // console.log(res.data);
-            navigate('/login');
+            navigate('/auth/login');
         }).catch((err)=>{
             console.log(err.message);
         })

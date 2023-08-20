@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
 
-const ProductCard = ({image,price,name,brand}) => {
+const ProductCard = ({id,image,price,name,brand,search}) => {
     const navigate = useNavigate();
     const main = {
         width : '200px',
@@ -13,20 +13,27 @@ const ProductCard = ({image,price,name,brand}) => {
     const imageStyle = {
         width: "200px",
         height: "400px",
-        cursor : 'pointer'
+        cursor : 'pointer',
+        margin : '45px 0px'
     };
   return (
     <div style={main}>
         <div>
-            <img onClick={()=>{navigate('/product-details/id')}} style={imageStyle} src={image} alt="" />
+            <img onClick={()=>{id ? navigate(`/product-details/${id}`) : navigate(`/${search}`)}} style={imageStyle} src={image} alt="" />
         </div>
         <div style={{display:'flex',justifyContent:'space-between',marginTop : '-44px'}}>
             <div>
-                <div>{name}</div>
-                <div>{brand}</div>
+                <div>{name.slice(0,15)}{ name.length > 15 ? "..." : ""}</div>
+                <div>{brand && brand.slice(0,10)}{ brand&& brand.length > 10 ? "..." : ""}</div>
             </div>
             <div>
-                {price}
+                {
+                    id ? <>
+                    <i class="inr"></i>{price}
+                    </> :
+                    <></>
+                }
+            
             </div>
         </div>
     </div>

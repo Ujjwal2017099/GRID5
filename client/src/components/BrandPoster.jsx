@@ -10,7 +10,7 @@ const BrandPoster = () => {
         padding : '0px 30px'
     };
   return (
-    <div style={{display : 'flex' , justifyContent:'center'}}>
+    <div style={{display : 'flex' , justifyContent:'center',margin:'20px 0px'}}>
       <div style={main}>
           <h2>Top Brand Deals</h2>
           <span>Up To</span> <span style={{ color: "#FBD103" }}>60%</span>{" "}

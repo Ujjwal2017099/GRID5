@@ -7,6 +7,8 @@ import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { URL } from '../URL'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const Cart = () => {
@@ -43,7 +45,7 @@ const Cart = () => {
             t += e.Price*e.Quantity;
         })
         setTotal(t);
-    },[products])
+    },[])
 
     const placeOrder = ()=>{
         if(token && token.length){
@@ -59,16 +61,19 @@ const Cart = () => {
             }
             axios(options)
             .then((res)=>{
+                toast('order placed')
+                setProducts([])
                 console.log(res.data);
             }).catch((err)=>{
                 console.log(err.message);
             })
         }else{
 
-        }
-    }
+        }
+    }
   return (
       <>
+      <ToastContainer />
           <Navbar />
           <div>
               <div>

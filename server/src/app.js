@@ -1,23 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
+require("dotenv").config();
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const app = express();
 const PORT = 8000;
-require('./connection/connection')
-const User = require('./models/user')
-const Orders = require('./models/orders')
-const Cart = require('./models/cart')
-const Products = require('./models/products')
-const Category = require('./models/category')
-const Rating = require('./models/rating')
-const Temporary = require('./models/temporary')
-const puppeteer = require("puppeteer")
-
+require("./connection/connection");
+const User = require("./models/user");
+const Orders = require("./models/orders");
+const Cart = require("./models/cart");
+const Products = require("./models/products");
+const Category = require("./models/category");
+const Rating = require("./models/rating");
+const Temporary = require("./models/temporary");
+const puppeteer = require("puppeteer");
 
 const corsOptions = {
-    origin : "*"
-}
+    origin: "*",
+};
 app.use(express.json());
 app.use(cors(corsOptions));
 
@@ -34,50 +33,51 @@ function VerifyToken(req, res, next) {
                 Password: user.Password,
             });
             // console.log(r[0]._id);
-            if(r && r.length) {res.userId=r[0]._id ; next();}
-            else return res.sendStatus(404);
+            if (r && r.length) {
+                res.userId = r[0]._id;
+                next();
+            } else return res.sendStatus(404);
         });
     } catch (error) {
         return res.status(501).send(error.message);
     }
 }
 
-async function GetCart(req,res,next) {
+async function GetCart(req, res, next) {
     try {
-        const user = await User.find({_id:res.userId});
+        const user = await User.find({ _id: res.userId });
         const response = [];
-        for(let i=0;i<user[0].Cart.length;i++){
+        for (let i = 0; i < user[0].Cart.length; i++) {
             const cart = await Cart.find({ _id: user[0].Cart[i] });
             const obj = {
-                CartId : cart[0]._id,
-                ProductId : cart[0].ProductId,
-                Quantity : cart[0].Quantity,
-                Date : cart[0].Date
-            }
+                CartId: cart[0]._id,
+                ProductId: cart[0].ProductId,
+                Quantity: cart[0].Quantity,
+                Date: cart[0].Date,
+            };
             response.push(obj);
             // console.log(cart);
         }
 
-        if(response.length===user[0].Cart.length){
+        if (response.length === user[0].Cart.length) {
             res.cartData = response;
             next();
         }
-        
     } catch (error) {
         return res.sendStatus(501);
     }
 }
 
-async function GetProducts(req,res,next) {
+async function GetProducts(req, res, next) {
     try {
         const x = req.body.Orders;
         const response = [];
-        for(let i=0;i<x.length;i++){
-            const y = await Orders.find({_id:x[i]});
+        for (let i = 0; i < x.length; i++) {
+            const y = await Orders.find({ _id: x[i] });
             response.push(y[0]);
         }
-        if(response.length === x.length){
-            res.Data = response
+        if (response.length === x.length) {
+            res.Data = response;
             next();
         }
     } catch (error) {
@@ -105,7 +105,7 @@ app.get("/login", async (req, res) => {
     } catch (error) {
         return res.status(404).send(error.message);
     }
-})
+});
 
 app.post("/signup", async (req, res) => {
     try {
@@ -118,53 +118,45 @@ app.post("/signup", async (req, res) => {
         await user.save();
         return res.sendStatus(201);
     } catch (error) {
+        console.log(error.message);
         return res.status(501).send(error.message);
     }
 });
 
-app.get("/search" , async (req,res)=>{
-    try {
-        await Temporary.deleteMany({});
-        res.sendStatus(200);
-    } catch (error) {
-        
-    }
-})
-
-app.get("/similar_product" , async (req,res)=>{
+app.get("/similar_product", async (req, res) => {
     try {
         const x = await Products.find({ Category: "64ddfc3ab0ef9123521f8190" });
         const y = await Category.find({ _id: "64ddfc3ab0ef9123521f8190" });
-        for(let i=0;i<x.length;i++){
+        for (let i = 0; i < x.length; i++) {
             y[0].Products.push(x[i]._id);
             console.log(i);
         }
         await y[0].save();
         res.sendStatus(200);
-
     } catch (error) {
         res.send(error.message);
     }
-})
+});
 
-app.get("/product_details" , async (req,res)=>{
+app.get("/product_details", async (req, res) => {
     try {
-        const details = await Products.find({_id:req.query.prd_id});
-        
-    } catch (error) {
-        
-    }
-})
+        // AddJeans();
+        Remove();
+        res.sendStatus(201);
+    } catch (error) {}
+});
+
+app.get("/similar_product", async (req, res) => {});
 // app.use(VerifyToken);
 // app.use(GetCart);
 
 app.post("/new_order", VerifyToken, async (req, res) => {
     try {
         // console.log(res.userId);
-        const user = await User.find({_id:res.userId});
-        if(user[0].Cart.length === 0 ) return res.sendStatus(401);
+        const user = await User.find({ _id: res.userId });
+        if (user[0].Cart.length === 0) return res.sendStatus(401);
         const cart = await Cart.find({ UserId: user[0]._id });
-        cart.forEach(async(e) => {
+        cart.forEach(async (e) => {
             const newOrder = new Orders({
                 UserId: res.userId,
                 ProductId: e.ProductId,
@@ -176,7 +168,7 @@ app.post("/new_order", VerifyToken, async (req, res) => {
 
         await Cart.deleteMany({ UserId: user[0]._id });
         // await Orders.save();
-        user[0].Cart=[];
+        user[0].Cart = [];
         await user[0].save();
 
         return res.sendStatus(201);
@@ -185,30 +177,42 @@ app.post("/new_order", VerifyToken, async (req, res) => {
     }
 });
 
-app.post("/add_to_cart" , VerifyToken , async (req,res)=>{
+app.post("/add_to_cart", VerifyToken, async (req, res) => {
     try {
-        const user = await User.find({_id:res.userId});
+        const user = await User.find({ _id: res.userId });
         // console.log(user[0]._id);
-            const newCart = new Cart({
-                UserId: res.userId,
-                ProductId: req.body.product,
-                Quantity: req.body.quantity,
-            })
-            user[0].Cart.push(newCart._id);
-            await newCart.save();
-           
+        const newCart = new Cart({
+            UserId: res.userId,
+            ProductId: req.body.product,
+        });
+        user[0].Cart.push(newCart._id);
+        await newCart.save();
+
         await user[0].save();
 
         return res.sendStatus(201);
     } catch (error) {
+        console.log(error.message);
         return res.status(501).send(error.message);
     }
-})
+});
+
+app.post("/search_history", VerifyToken, async (req, res) => {
+    try {
+        const _id = res.userId;
+        const x = await User.find({ _id });
+        x[0].Search.push(req.query.search);
+        await x[0].save();
+        res.sendStatus(201);
+    } catch (error) {
+        res.status(401).send(error.message);
+    }
+});
 
 app.get("/profile", VerifyToken, async (req, res) => {
     try {
-        const user =await  User.find({_id:res.userId});
-        
+        const user = await User.find({ _id: res.userId });
+
         const response = {
             Name: user[0].Name,
             Email: user[0].Email,
@@ -222,23 +226,23 @@ app.get("/profile", VerifyToken, async (req, res) => {
     }
 });
 
-app.post("/orders",VerifyToken,GetProducts, async (req, res) => {
+app.post("/orders", VerifyToken, GetProducts, async (req, res) => {
     try {
         const x = res.Data;
         const response = [];
-        for(let i=0;i<x.length;i++){
-            const y = await Products.find({_id:x[i].ProductId});
+        for (let i = 0; i < x.length; i++) {
+            const y = await Products.find({ _id: x[i].ProductId });
             const r = {
-                OrderId : x[i]._id,
-                Date : x[i].Date,
-                Quantity : x[i].Quantity,
-                Total : y[0].Price*x[i].Quantity,
-                Image : y[0].Image
-            }
+                OrderId: x[i]._id,
+                Date: x[i].Date,
+                Quantity: x[i].Quantity,
+                Total: y[0].Price * x[i].Quantity,
+                Image: y[0].Image,
+            };
             response.push(r);
         }
 
-        if(response.length === x.length){
+        if (response.length === x.length) {
             return res.status(200).send(response);
         }
     } catch (error) {
@@ -247,12 +251,12 @@ app.post("/orders",VerifyToken,GetProducts, async (req, res) => {
     }
 });
 
-app.get("/cart",VerifyToken , GetCart , async(req,res)=>{
+app.get("/cart", VerifyToken, GetCart, async (req, res) => {
     try {
-        const response = res.cartData ;
+        const response = res.cartData;
         // console.log(response);
-        let cnt=0;
-        for(let i=0;i<response.length;i++){
+        let cnt = 0;
+        for (let i = 0; i < response.length; i++) {
             const x = await Products.find({ _id: response[i].ProductId });
             response[i].Name = x[0].Name;
             response[i].Image = x[0].Image;
@@ -260,57 +264,49 @@ app.get("/cart",VerifyToken , GetCart , async(req,res)=>{
             response[i].Brand = x[0].Brand;
             cnt++;
         }
-        
+
         // console.log(response);
         return res.status(200).send(response);
-        
     } catch (error) {
         // console.log(error);
         return res.status(501).send(error.message);
     }
-})
-
-app.post('/search_history' , VerifyToken , async(req,res)=>{
-    try {
-        const _id = res.userId;
-        const x = await User.find({_id})
-        x[0].Search.push(req.query.search);
-        await x[0].save();
-        res.sendStatus(201);
-    } catch (error) {
-        res.status(401).send(error.message);
-    }
-})
-
-app.post("/change_quantity",VerifyToken , async (req,res)=>{
-    try {
-        const cart = await Cart.find({ _id: req.body.cartId}); 
-        if(cart[0].Quantity + req.body.change === 0){
-            const user = await User.find({_id : res.userId})
-            await Cart.deleteOne({_id:req.body.cartId});
-            const arr = [];
-            user[0].Cart.forEach((e)=>{
-                if(e!==req.body.cartId){
-                    arr.push(e);
-                }
-            })
-            user[0].Cart = arr;
-            await user[0].save();
-        }else{
-            cart[0].Quantity += req.body.change;
-            await cart[0].save()
-        }
-
-        res.sendStatus(201);
-    } catch (error) {
-        res.status(501).send(error.message);
-    }
 });
 
-app.get('/test' , async(req,res)=>{
-    
-})
-
+app.get("/search_history", VerifyToken, async (req, res) => {
+    try {
+        const _id = res.userId;
+        const x = await User.find({ _id });
+        const y = new Set(x[0].Search);
+        x[0].Search = Array.from(y);
+        if (x[0].Search.length > 5)
+            x[0].Search = x[0].Search.slice(x[0].Search.length - 5);
+        await x[0].save();
+        return res.status(200).send(x[0].Search);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(error.message);
+    }
+});
+app.get("/search", async (req, res) => {
+    try {
+        const filter = {
+            $text: {
+                $search: req.query.search,
+            },
+        };
+        const x = await Products.find(filter).limit(20);
+        // console.log(x);
+        for (let i = 0; i < x.length; i++) {
+            x[i].Appearence++;
+            await x[i].save();
+        }
+        res.send(x);
+    } catch (error) {
+        console.log(error.message);
+        res.status(404).send(error.message);
+    }
+});
 app.listen(PORT, () => {
     console.log("server started");
 });

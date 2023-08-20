@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
-import Image from '../assets/product.svg'
+import Image from '../assets/Loading.gif'
 import Stars from '../assets/stars.svg'
 import './style.css'
 import cart from '../assets/prd-cart.svg'
@@ -10,36 +10,74 @@ import greaterThan from '../assets/greater-than.svg'
 import tick from '../assets/tick.svg'
 import Products from '../components/Products'
 import Footer from '../components/Footer'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from "react-router-dom";
 import { URL } from '../URL'
 import axios from 'axios'
+import {ModelURL} from '../ModelURL'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+function Params() {
+    return useParams();
+}
 const ProductDetail = () => {
   const token = JSON.parse(localStorage.getItem('id'))
+  const prd = Params();
   const navigate = useNavigate();
     const [product, setProduct] = useState({
-        Name: "Raven Hoodie With Black colored Design",
+        Name: "",
         Description:
-            "100% Bio-washed Cotton - makes the fabric extra soft & silky. Flexible ribbed crew neck. Precisely stitched with no pilling & no fading. Provide all-time comfort. Anytime, anywhere. Infinite range of matte-finish HD prints.",
-        Price: "Price",
-        Rating: 3.5,
-        Category: "Category",
-        Attributes: [
-            ['Style', "Casual Wear"],
-            ['Sleeve', "Half-sleeves"],
-            ['Neck' , "Round Neck"],
-            ['Fit' , "Regular-fit"],
-            ['Pattern' , "Printed"],
-            ['Fabric' , "Bio-washed Cotton"],
+            "",
+        Price: "",
+        Rating:"",
+        Category: "",
+        Attributes: [,
         ],
         Image,
     });
     const [suggested , setSuggested] = useState([{
         Image ,
-        Name : 'Name',
-        Brand : 'Brand',
-        Price : 'Price'
+        Name : '',
+        Brand : '',
+        Price : ''
     }])
+
+    useEffect(()=>{
+      if (token && token.length) {
+          const url = `${URL}/search_history?token=${token}&search=${prd.id}`;
+          const options = {
+              url,
+              method: "POST",
+              headers: { "content-type": "application/json" },
+          };
+
+          axios(options)
+              .then((res) => {
+                  console.log(res.data);
+              })
+              .catch((err) => {
+                  console.log(err);
+              });
+      }
+    },[])
+
+    useEffect(()=>{
+      const url = `${ModelURL}/productPage?id=${prd.id}`
+      
+      const options = {
+        method : "GET",
+        headers : {'content-type' : 'application/json'},
+        url,
+      }
+      axios(options)
+      .then((res)=>{
+        const main = res.data[0];
+        setProduct(main);
+        setSuggested(res.data[1]);
+      }).catch((err)=>{
+        console.log(err);
+      })
+    },[prd])
     const prdHeadStyle = {
         padding : '30px 0px',
         display : 'flex',
@@ -51,14 +89,18 @@ const ProductDetail = () => {
     const addToCart = ()=>{
       if(token && token.length){
         const url = `${URL}/add_to_cart?token=${token}`;
+        const data = JSON.stringify({
+          product : prd.id
+        })
         const options = {
           method : "POST",
           url,
-          headers : {'content-type':'application/json'}
+          headers : {'content-type':'application/json'},
+          data
         }
         axios(options)
         .then((res)=>{
-          
+          toast('Added to cart')
         }).catch((err)=>{
           console.log(err);
         })
@@ -69,6 +111,7 @@ const ProductDetail = () => {
     }
   return (
     <>
+    <ToastContainer />
       <div style={main}>
           <Navbar />
           <div style={prdHeadStyle}>

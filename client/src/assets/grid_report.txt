@@ -1,0 +1,36 @@
+SUB PROBLEMS
+
+Data Collection and Preparation
+
+Gathering user data: Collecting information about users, such as their preferences, behaviors, demographics, and historical interactions
+Collecting item data: Gathering details about the items in the system, such as attributes, categories, and metadata.
+Data preprocessing: Cleaning, normalizing, and transforming raw data into a suitable format for modeling.
+
+Recommendation Algorithms:
+
+Collaborative filtering: Building models based on user-item interactions and leveraging similarities between users or items.
+Content-based filtering: Recommending items based on user profiles and item attributes.
+Hybrid approaches: Combining collaborative and content-based methods to improve recommendation quality.
+Matrix factorization: use SVD algorithm for decomposing user-item interaction matrices to discover latent factors.
+Deep learning models: Used ResNet50 to extract multiple features from images and used for similarity computation.
+
+Cold Start Problem
+
+provide the trending products based on CTR(Click Through Rate) score.
+CTR = Clicks/Impressions * 100
+
+Optimization
+
+Tuning model parameters and hyperparameters to optimize recommendation performance.
+
+Platform
+
+Build an E-commerce website to help users in getting personalised recommendations based on their search history and product similarities
+
+
+--------------------------------------------------------------------------------------------
+
+
+
+
+

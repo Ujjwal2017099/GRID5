@@ -12,10 +12,11 @@ import axios from 'axios'
 const Navbar = () => {
     const navigate = useNavigate();
     const categories = [
-        'Women',
-        'Men',
-        'Electronics',
-        'Books'
+        'Skirt',
+        'Jeans',
+        'Shirt',
+        'Books',
+        'Shoes'
     ]
     const [search , setSearch] = useState('');
     const [active,setActive] = useState(false);
@@ -41,6 +42,7 @@ const Navbar = () => {
         }
     },[active])
   return (
+    <>
       <div className="nav-root">
           <ul className="nav-list">
               <li>
@@ -80,6 +82,10 @@ const Navbar = () => {
               </li>
           </ul>
       </div>
+      <div style={{marginTop:'80px'}}>
+
+      </div>
+      </>
   );
 }
 

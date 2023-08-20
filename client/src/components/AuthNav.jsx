@@ -14,7 +14,7 @@ const AuthNav = () => {
   return (
     <div style={style}>
         <div style={{width:"50%"}}>
-            <img style={{height:'35px'}} src={logo} alt="" srcset="" />
+            <img onClick={()=>{navigate('/')}} style={{height:'35px'}} src={logo} alt="" srcset="" />
         </div>
         <div style={{width:"20%",display:'flex',justifyContent:'space-evenly'}}>
             <button onClick={()=>{navigate('/auth/login');}} className='btn'>Login</button>

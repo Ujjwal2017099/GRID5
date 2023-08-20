@@ -8,10 +8,12 @@ const ProfileLeft = ({setToogle}) => {
   const change = (n)=>{
     setToogle(n);
   }
-  const navigate = useNavigate();
+
+  const navigate = useNavigate()
   const signout = ()=>{
-    localStorage.setItem('id',"");
-    navigate('/auth/login');
+    localStorage.setItem('id',JSON.stringify([]));
+    navigate('/auth/login')
+
   }
   return (
     <div className='profile-left'>

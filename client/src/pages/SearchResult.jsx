@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import Image from '../assets/product.svg'
+import Image from '../assets/Loading.gif'
 import Products from '../components/Products';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { URL } from '../URL';
+import axios from 'axios';
 
 function Params (){
     return useParams();
@@ -13,13 +15,25 @@ const SearchResult = () => {
     const {search} = Params();
     const [result,setResult] = useState([{
         Image,
-        Name : "Name",
-        Brand : 'Brand',
-        Price : 'Price'
+        Name : "",
+        Brand : '',
+        Price : ''
     }])
     useEffect(()=>{
-        console.log(search);
-    })
+        const url = `${URL}/search?search=${search}`
+        const options = {
+            method : "GET",
+            headers : {'content-type' : 'application/json'},
+            url
+        }
+        axios(options)
+        .then((res)=>{
+            console.log(res.data);
+            setResult(res.data)
+        }).catch((err)=>{
+
+        })
+    },[search])
     const main = {
         padding : '25px 55px'
     }

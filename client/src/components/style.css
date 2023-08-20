@@ -15,6 +15,16 @@
     
 }
 
+.inr::before{
+    content: "\f156";
+}
+
+.inr{
+    
+    font: normal normal normal 14px/1 FontAwesome;
+    display: inline-block;
+}
+
 .btn2 {
 
     background: #FFFFFF;
@@ -29,6 +39,16 @@
     color: #8A33FD;
 
     cursor: pointer;
+}
+
+
+
+.nav-root{
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background-color: #fff;
+    border-bottom:5px solid #8A33FD;
 }
 
 .nav-list{
